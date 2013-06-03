@@ -45,5 +45,3 @@ if($hpass->compare_pass($password, $dbpass)){
 	//it doesn't validate
 
 }
-
-
