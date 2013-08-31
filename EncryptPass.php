@@ -36,9 +36,23 @@ class EncryptPass{
 	//create random key
 	public function create_key($bytes=128){
 		if(function_exists('openssl_random_pseudo_bytes')){
-			return base64_encode(openssl_random_pseudo_bytes($bytes));
-		}else{
+			$strong = false;
+			$key = openssl_random_pseudo_bytes($bytes, $strong);
+			if ($strong) {
+				return base64_encode($key);
+			}
+		}
+
+		if (function_exists('mcrypt_create_iv')) {
 			return base64_encode(mcrypt_create_iv($bytes, MCRYPT_DEV_URANDOM));
+		} else {
+			$sha = hash('sha512', md5(uniqid()));
+			$key = '';
+			for ($i = 0; $i < $bytes; $i++) {
+				$key .= substr($sha, (strlen($sha-1)), 1);
+				$sha = hash('sha512', $sha . md5(uniqid()));
+			}
+			return base64_encode($key);
 		}
 	}
 	//create hmac
